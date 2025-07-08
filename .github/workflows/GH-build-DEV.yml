@@ -27,3 +27,33 @@ jobs:
       run: dotnet test --no-build --verbosity normal
     - name: Read Secrets
       run: echo ${{ secrets.USUARIO }}
+      
+    - name: Enviar correo con DebugMail
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y nodejs npm
+        npm init -y
+        npm install nodemailer
+
+        echo "const nodemailer = require('nodemailer');
+
+        let transporter = nodemailer.createTransport({
+          host: 'app.debugmail.io',
+          port: 25,
+          secure: false,
+          auth: {
+            user: '393f07f9-d8d1-47a7-b138-980fa0e04e17',
+            pass: '51e4c50e-78dd-45b0-9e5f-1fee8a15cefb'
+          }
+        });
+
+        transporter.sendMail({
+          from: 'john.doe@example.org',
+          to: '393f07f9-d8d1-47a7-b138-980fa0e04e17@debugmail.io',
+          subject: '✅ GH-build-DEV ejecutado correctamente',
+          text: 'El pipeline terminó correctamente.'
+        }).then(() => console.log('Correo enviado'))
+          .catch(err => console.error('Error al enviar correo:', err));
+        " > send-email.js
+
+        node send-email.js
